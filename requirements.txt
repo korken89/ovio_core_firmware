@@ -1,0 +1,5 @@
+gtkwave
+python-pyvcd
+python-jinja
+python-nmigen
+python-nmigen-boards
