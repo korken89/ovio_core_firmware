@@ -124,47 +124,14 @@ def main():
     sim.add_clock(1e-7, domain="sync")      # 10 MHz FPGA clock
 
     def process():
-        yield wfifo.w_en.eq(1)
-        yield wfifo.w_data.eq(1)
-        yield Tick(domain="sync")
-        yield wfifo.w_data.eq(2)
-        yield Tick(domain="sync")
-        yield wfifo.w_data.eq(3)
-        yield Tick(domain="sync")
-        yield wfifo.w_data.eq(4)
-        yield Tick(domain="sync")
-        yield wfifo.w_data.eq(5)
-        yield Tick(domain="sync")
-        yield wfifo.w_data.eq(6)
-        yield Tick(domain="sync")
-        yield wfifo.w_data.eq(7)
-        yield Tick(domain="sync")
-        yield wfifo.w_en.eq(0)
-        yield Tick(domain="sync")
-        yield Tick(domain="sync")
-        yield ft.ft_txe.eq(1)
-        yield Tick(domain="sync")
-        yield Tick(domain="sync")
-        yield Tick(domain="sync")
-        yield Tick(domain="sync")
-        yield ft.ft_txe.eq(0)
-        yield Tick(domain="sync")
-        yield Tick(domain="sync")
-        yield ft.ft_txe.eq(1)
-        yield Tick(domain="sync")
-        yield Tick(domain="sync")
-        yield Tick(domain="sync")
         yield Tick(domain="sync")
         yield Tick(domain="sync")
         yield Tick(domain="sync")
         yield Tick(domain="sync")
         yield ft.ft_rxf.eq(1)
         yield Tick(domain="sync")
-        yield ft.ft_data.eq(1)
         yield Tick(domain="sync")
-        yield ft.ft_data.eq(2)
         yield Tick(domain="sync")
-        yield ft.ft_data.eq(3)
         yield Tick(domain="sync")
         yield ft.ft_rxf.eq(0)
         yield Tick(domain="sync")
@@ -174,15 +141,14 @@ def main():
         yield Tick(domain="sync")
         yield Tick(domain="sync")
         yield Tick(domain="sync")
-        yield Tick(domain="sync")
-        yield Tick(domain="sync")
-        yield Tick(domain="sync")
-        yield Tick(domain="sync")
-        yield Tick(domain="sync")
-        yield Tick(domain="sync")
 
     sim.add_sync_process(process)
-    with sim.write_vcd("test.vcd", "test.gtkw", traces=[]):
+    with sim.write_vcd("test.vcd", "test.gtkw", traces=[
+        rfifo.r_level,
+        rfifo.w_level,
+        rfifo.w_en,
+        rfifo.w_rdy,
+    ]):
         sim.run()
 
 
