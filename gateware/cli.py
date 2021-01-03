@@ -4,11 +4,14 @@ import sys
 
 from .platform.ovio_core_platform import OvioCorePlatform
 from .apps.pll_timer import PllTimer
+from .apps.ft600_test import FT600_Test
 
 
 def main():
     plat = OvioCorePlatform()
-    plat.build(PllTimer(), do_program=False)
+    # plat.build(PllTimer(), do_program=False)
+    plat.build(FT600_Test(), do_program=False)
+
     # # Create the parser
     # my_parser = argparse.ArgumentParser(
     #     description='List the content of a folder')

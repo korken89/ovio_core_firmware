@@ -1,12 +1,13 @@
 from typing import List, Tuple
 
-from nmigen import Module, Signal, Elaboratable, unsigned, Cat, ClockDomain, ClockSignal
+from nmigen import Module, Signal, Elaboratable
+from nmigen.build import Platform
 from nmigen.lib.fifo import AsyncFIFOBuffered
 from nmigen.sim import Simulator, Tick
 
 
 class FT600(Elaboratable):
-    def __init__(self):
+    def __init__(self, rw_domain="sync"):
         self.input_payload = Signal(16)
         self.input_ready = Signal()
         self.input_valid = Signal()
@@ -14,6 +15,8 @@ class FT600(Elaboratable):
         self.output_payload = Signal(16)
         self.output_ready = Signal()
         self.output_valid = Signal()
+
+        self.ft_override = Signal(16)
 
         # Hardware interface
         self.ft_oe = Signal()
@@ -24,26 +27,21 @@ class FT600(Elaboratable):
         self.ft_read = Signal()
         self.ft_data = Signal(16)
 
-    def elaborate(self, platform):
+    def elaborate(self, platform: Platform) -> Module:
         m = Module()
 
         # TODO: Add async FIFOs internally
         # m.submodules.write_fifo = write_fifo = AsyncFIFOBuffered(...)
         # m.submodules.read_fifo = read_fifo = AsyncFIFOBuffered(...)
 
-        if platform is None:
-            # TODO: Add dummy pins for simulation
-            pass
-        else:
-            # TODO: Extract pins
-            pass
+        m.d.comb += self.ft_data.eq(self.ft_override)
 
         # Signal defaults
         m.d.comb += self.ft_oe.eq(0)
         m.d.comb += self.ft_write.eq(0)
         m.d.comb += self.ft_read.eq(0)
 
-        with m.FSM(reset="READY"):
+        with m.FSM():
             with m.State("READY"):
                 # If there is data to read, we read it first before entering the write state
                 with m.If(self.ft_rxf):
@@ -78,6 +76,12 @@ class FT600(Elaboratable):
                     m.next = "READY"
 
         return m
+
+    def read_fifo_port(self) -> List[Signal]:
+        return []
+
+    def write_fifo_port(self) -> List[Signal]:
+        return []
 
     def ft_ports(self):
         return [
@@ -124,31 +128,56 @@ def main():
     sim.add_clock(1e-7, domain="sync")      # 10 MHz FPGA clock
 
     def process():
+        yield wfifo.w_en.eq(1)
+        yield wfifo.w_data.eq(1)
+        yield Tick(domain="sync")
+        yield wfifo.w_data.eq(2)
+        yield Tick(domain="sync")
+        yield wfifo.w_data.eq(3)
+        yield Tick(domain="sync")
+        yield wfifo.w_data.eq(4)
+        yield Tick(domain="sync")
+        yield wfifo.w_data.eq(5)
+        yield Tick(domain="sync")
+        yield wfifo.w_data.eq(6)
+        yield Tick(domain="sync")
+        yield wfifo.w_data.eq(7)
+        yield Tick(domain="sync")
+        yield wfifo.w_en.eq(0)
+        yield Tick(domain="sync")
+        yield Tick(domain="sync")
+        yield ft.ft_txe.eq(1)
+        yield Tick(domain="sync")
+        yield Tick(domain="sync")
+        yield Tick(domain="sync")
+        yield Tick(domain="sync")
+        yield ft.ft_txe.eq(0)
+        yield Tick(domain="sync")
+        yield Tick(domain="sync")
+        yield ft.ft_txe.eq(1)
+        yield Tick(domain="sync")
+        yield Tick(domain="sync")
+        yield Tick(domain="sync")
         yield Tick(domain="sync")
         yield Tick(domain="sync")
         yield Tick(domain="sync")
         yield Tick(domain="sync")
         yield ft.ft_rxf.eq(1)
         yield Tick(domain="sync")
+        yield ft.ft_override.eq(1)
         yield Tick(domain="sync")
+        yield ft.ft_override.eq(2)
         yield Tick(domain="sync")
+        yield ft.ft_override.eq(3)
         yield Tick(domain="sync")
         yield ft.ft_rxf.eq(0)
         yield Tick(domain="sync")
         yield Tick(domain="sync")
         yield Tick(domain="sync")
         yield Tick(domain="sync")
-        yield Tick(domain="sync")
-        yield Tick(domain="sync")
-        yield Tick(domain="sync")
 
     sim.add_sync_process(process)
-    with sim.write_vcd("test.vcd", "test.gtkw", traces=[
-        rfifo.r_level,
-        rfifo.w_level,
-        rfifo.w_en,
-        rfifo.w_rdy,
-    ]):
+    with sim.write_vcd("test.vcd", "test.gtkw", traces=[]):
         sim.run()
 
 

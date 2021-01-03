@@ -16,7 +16,7 @@ from nmigen.build import *
 class OvioCorePlatform(LatticeECP5Platform):
     device = "LFE5U-85F"
     package = "BG381"
-    speed = 6
+    speed = 8
 
     resources = [
         # This clock can only be an input to the PLL
@@ -34,9 +34,9 @@ class OvioCorePlatform(LatticeECP5Platform):
                      Attrs(IO_TYPE="LVCMOS33", DRIVE="16")),
                  Subsignal("be", Pins("H17 G16", dir="io"),
                            Attrs(IO_TYPE="LVCMOS33", DRIVE="16")),
-                 Subsignal("rd", PinsN("E18", dir="o"),
+                 Subsignal("read", PinsN("E18", dir="o"),
                            Attrs(IO_TYPE="LVCMOS33", DRIVE="16")),
-                 Subsignal("wr", PinsN("F17", dir="o"),
+                 Subsignal("write", PinsN("F17", dir="o"),
                            Attrs(IO_TYPE="LVCMOS33", DRIVE="16")),
                  Subsignal("oe", PinsN("E17", dir="o"),
                            Attrs(IO_TYPE="LVCMOS33", DRIVE="16")),
