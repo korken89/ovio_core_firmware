@@ -121,8 +121,8 @@ class FT600(Elaboratable):
                 m.d.comb += self.ft.write.o.eq(self.input_valid)
 
                 # TODO: Should we go to ready if there is data to read, or wait until write is done?
-                # with m.If(~self.ft.txe.i | ~self.input_valid):
-                #     m.next = "READY"
+                with m.If(~self.ft.txe.i | ~self.input_valid):
+                    m.next = "READY"
 
         return m
 
