@@ -97,10 +97,11 @@ class FT600(Elaboratable):
             with m.State("READ"):
                 m.d.comb += self.ft.oe.o.eq(1)
 
+                # Set pins in correct direction (input)
                 m.d.comb += self.ft.data.oe.eq(0)
                 m.d.comb += self.ft.be.oe.eq(0)
 
-                # Connect FIFO, TODO: Add support for IO on the data and be lines
+                # Connect FIFO
                 m.d.comb += self.output_payload.eq(self.ft.data.i)
                 m.d.comb += self.output_valid.eq(self.ft.rxf.i)
                 m.d.comb += self.ft.read.o.eq(self.output_ready)
@@ -109,13 +110,15 @@ class FT600(Elaboratable):
                     m.next = "READY"
 
             with m.State("WRITE"):
+                # Set pins in correct direction (output)
                 m.d.comb += self.ft.data.oe.eq(1)
                 m.d.comb += self.ft.be.oe.eq(1)
 
+                # All bytes are valid
                 m.d.comb += self.ft.oe.o.eq(0)
                 m.d.comb += self.ft.be.o.eq(0b11)
 
-                # Connect FIFO, TODO: Add support for IO on the data and be lines
+                # Connect FIFO
                 m.d.comb += self.ft.data.o.eq(self.input_payload)
                 m.d.comb += self.input_ready.eq(self.ft.txe.i)
                 m.d.comb += self.ft.write.o.eq(self.input_valid)
